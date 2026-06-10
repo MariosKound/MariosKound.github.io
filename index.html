@@ -201,24 +201,7 @@
     .game-desc { font-size: 0.75rem; color: var(--grey); font-family: var(--mono); }
     .game-body { padding: 1.5rem; }
 
-    /* ── GAME 1: CODE TYPER ── */
-    #typer-snippet {
-      background: #0f0f0f; border: 1px solid var(--border); border-radius: 6px;
-      padding: 1rem; font-family: var(--mono); font-size: 0.82rem; line-height: 1.9;
-      margin-bottom: 1rem; min-height: 80px; letter-spacing: 0.03em;
-      user-select: none;
-    }
-    .char-pending { color: #444; }
-    .char-correct { color: #86efac; }
-    .char-wrong   { color: #f87171; background: rgba(248,113,113,0.15); border-radius: 2px; }
-    .char-cursor  { border-left: 2px solid var(--orange); }
-
-    #typer-input {
-      width: 100%; background: #0f0f0f; border: 1px solid var(--border); border-radius: 6px;
-      padding: 0.6rem 1rem; color: var(--white); font-family: var(--mono); font-size: 0.85rem;
-      outline: none; transition: border-color 0.2s; margin-bottom: 0.75rem;
-    }
-    #typer-input:focus { border-color: var(--orange); }
+    /* ── GAME 1: GUESS THE LANGUAGE ── */
     .typer-stats { display: flex; gap: 1.5rem; margin-bottom: 0.75rem; }
     .typer-stat { text-align: center; }
     .typer-stat-val { font-size: 1.4rem; font-weight: 800; color: var(--orange); font-family: var(--mono); }
@@ -286,7 +269,12 @@
     .contact-link-label { font-size: 0.7rem; color: var(--grey); text-transform: uppercase; letter-spacing: 0.08em; }
     .contact-link-val { font-size: 0.9rem; color: var(--white); font-weight: 600; }
 
-    .divider { height: 1px; background: var(--border); }
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, var(--orange) 30%, var(--border) 55%, transparent 100%);
+      opacity: 0.35;
+      margin: 0 2rem;
+    }
 
     footer { padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 0.72rem; color: var(--grey); flex-wrap: wrap; gap: 1rem; }
     footer span { color: var(--orange); }
@@ -471,24 +459,24 @@
 
     <div class="games-grid">
 
-      <!-- GAME 1: CODE TYPER -->
+      <!-- GAME 1: GUESS THE LANGUAGE -->
       <div class="game-card reveal reveal-delay-1">
         <div class="game-header">
           <div class="game-title-wrap">
-            <span class="game-icon">⌨</span>
-            <div><div class="game-name">Code Typer</div><div class="game-desc">type the snippet · measure your WPM</div></div>
+            <span class="game-icon">🔍</span>
+            <div><div class="game-name">Guess the Language</div><div class="game-desc">identify the programming language · 10 rounds</div></div>
           </div>
-          <button class="btn btn-orange" onclick="typerStart()" id="typer-btn" style="padding:0.4rem 1rem;font-size:0.75rem">Start</button>
+          <button class="btn btn-orange" onclick="guessStart()" id="guess-btn" style="padding:0.4rem 1rem;font-size:0.75rem">Start</button>
         </div>
         <div class="game-body">
           <div class="typer-stats">
-            <div class="typer-stat"><div class="typer-stat-val" id="typer-wpm">0</div><div class="typer-stat-lbl">WPM</div></div>
-            <div class="typer-stat"><div class="typer-stat-val" id="typer-acc">—</div><div class="typer-stat-lbl">Accuracy</div></div>
-            <div class="typer-stat"><div class="typer-stat-val" id="typer-time">0s</div><div class="typer-stat-lbl">Time</div></div>
+            <div class="typer-stat"><div class="typer-stat-val" id="guess-score">0</div><div class="typer-stat-lbl">Score</div></div>
+            <div class="typer-stat"><div class="typer-stat-val" id="guess-round">—</div><div class="typer-stat-lbl">Round</div></div>
+            <div class="typer-stat"><div class="typer-stat-val" id="guess-streak">0</div><div class="typer-stat-lbl">Streak 🔥</div></div>
           </div>
-          <div id="typer-snippet"></div>
-          <input id="typer-input" type="text" placeholder="Press Start then type here..." disabled autocomplete="off" spellcheck="false" />
-          <div class="typer-result" id="typer-result"></div>
+          <div id="guess-snippet" style="background:#0f0f0f;border:1px solid var(--border);border-radius:6px;padding:1rem;font-family:var(--mono);font-size:0.8rem;line-height:1.9;margin-bottom:1rem;min-height:90px;color:#ccc;white-space:pre-wrap;"></div>
+          <div id="guess-options" style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.75rem;"></div>
+          <div class="typer-result" id="guess-result"></div>
         </div>
       </div>
 
@@ -701,86 +689,95 @@
 })();
 
 /* ══════════════════════════════
-   GAME 1: CODE TYPER
+   GAME 1: GUESS THE LANGUAGE
 ══════════════════════════════ */
-const SNIPPETS = [
-  `function greet(name) {\n  return "Hello, " + name + "!";\n}`,
-  `for (int i = 0; i < 10; i++) {\n  System.out.println(i);\n}`,
-  `SELECT * FROM users\nWHERE active = 1\nORDER BY name ASC;`,
-  `<?php\n$arr = [1, 2, 3];\nforeach ($arr as $v) echo $v;`,
-  `if (x != null && x > 0) {\n  return x * 2;\n} else return -1;`
+const GUESS_POOL = [
+  { lang: 'JavaScript', code: `function greet(name) {\n  return \`Hello, \${name}!\`;\n}\nconsole.log(greet("World"));` },
+  { lang: 'Python', code: `def greet(name):\n    return f"Hello, {name}!"\n\nprint(greet("World"))` },
+  { lang: 'Java', code: `public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello");\n  }\n}` },
+  { lang: 'C#', code: `class Program {\n  static void Main() {\n    Console.WriteLine("Hello!");\n  }\n}` },
+  { lang: 'PHP', code: `<?php\n$name = "World";\necho "Hello, " . $name . "!";\n?>` },
+  { lang: 'SQL', code: `SELECT u.name, COUNT(o.id) AS orders\nFROM users u\nLEFT JOIN orders o ON u.id = o.user_id\nGROUP BY u.name;` },
+  { lang: 'C++', code: `#include <iostream>\nusing namespace std;\nint main() {\n  cout << "Hello!" << endl;\n  return 0;\n}` },
+  { lang: 'C', code: `#include <stdio.h>\nint main() {\n  printf("Hello, World!\\n");\n  return 0;\n}` },
+  { lang: 'Kotlin', code: `fun main() {\n  val name = "World"\n  println("Hello, \$name!")\n}` },
+  { lang: 'Swift', code: `import Foundation\nlet name = "World"\nprint("Hello, \\(name)!")` },
+  { lang: 'Ruby', code: `def greet(name)\n  "Hello, #{name}!"\nend\nputs greet("World")` },
+  { lang: 'Rust', code: `fn main() {\n  let name = "World";\n  println!("Hello, {}!", name);\n}` },
 ];
+const ALL_LANGS = [...new Set(GUESS_POOL.map(q => q.lang))];
 
-let typerState = { running: false, start: null, timer: null, snippet: '', idx: 0, errors: 0 };
+let guessState = { round: 0, score: 0, streak: 0, pool: [], answered: false };
 
-function typerRender() {
-  const s = typerState.snippet;
-  const idx = typerState.idx;
-  const input = document.getElementById('typer-input').value;
-  let html = '';
-  for (let i = 0; i < s.length; i++) {
-    const ch = s[i] === '\n' ? '↵\n' : s[i];
-    if (i < idx) {
-      const typed = input[i] || '';
-      const correct = typed === s[i];
-      html += `<span class="${correct ? 'char-correct' : 'char-wrong'}">${ch === '\n' ? '↵\n' : escHtml(ch)}</span>`;
-    } else if (i === idx) {
-      html += `<span class="char-pending char-cursor">${escHtml(ch === '↵\n' ? '↵\n' : ch)}</span>`;
-    } else {
-      html += `<span class="char-pending">${escHtml(ch === '↵\n' ? '↵\n' : ch)}</span>`;
-    }
-  }
-  document.getElementById('typer-snippet').innerHTML = html;
+function guessStart() {
+  guessState = { round: 0, score: 0, streak: 0, pool: [...GUESS_POOL].sort(() => Math.random() - 0.5).slice(0, 10), answered: false };
+  document.getElementById('guess-score').textContent = '0';
+  document.getElementById('guess-streak').textContent = '0';
+  document.getElementById('guess-result').textContent = '';
+  document.getElementById('guess-btn').textContent = 'Restart';
+  guessNext();
 }
 
-function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function typerStart() {
-  const snippet = SNIPPETS[Math.floor(Math.random() * SNIPPETS.length)];
-  typerState = { running: true, start: null, timer: null, snippet, idx: 0, errors: 0 };
-  document.getElementById('typer-input').value = '';
-  document.getElementById('typer-input').disabled = false;
-  document.getElementById('typer-input').focus();
-  document.getElementById('typer-wpm').textContent = '0';
-  document.getElementById('typer-acc').textContent = '—';
-  document.getElementById('typer-time').textContent = '0s';
-  document.getElementById('typer-result').textContent = '';
-  document.getElementById('typer-btn').textContent = 'Restart';
-  typerRender();
-  if (typerState.timer) clearInterval(typerState.timer);
-  typerState.timer = setInterval(() => {
-    if (typerState.start) {
-      const elapsed = (Date.now() - typerState.start) / 1000;
-      document.getElementById('typer-time').textContent = elapsed.toFixed(1) + 's';
-      const words = typerState.idx / 5;
-      const wpm = Math.round(words / (elapsed / 60));
-      document.getElementById('typer-wpm').textContent = wpm;
-    }
-  }, 200);
+function guessNext() {
+  const s = guessState;
+  if (s.round >= s.pool.length) { guessEnd(); return; }
+  document.getElementById('guess-round').textContent = `${s.round + 1}/10`;
+  document.getElementById('guess-result').textContent = '';
+  s.answered = false;
+  const q = s.pool[s.round];
+  document.getElementById('guess-snippet').textContent = q.code;
+  // build 4 options: correct + 3 random wrong
+  const wrong = ALL_LANGS.filter(l => l !== q.lang).sort(() => Math.random() - 0.5).slice(0, 3);
+  const opts = [q.lang, ...wrong].sort(() => Math.random() - 0.5);
+  const container = document.getElementById('guess-options');
+  container.innerHTML = '';
+  opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-ghost';
+    btn.style.cssText = 'font-size:0.82rem;padding:0.5rem 0.75rem;text-transform:none;letter-spacing:0;font-family:var(--mono);';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => guessAnswer(opt, q.lang, btn));
+    container.appendChild(btn);
+  });
 }
 
-document.getElementById('typer-input').addEventListener('input', function() {
-  if (!typerState.running) return;
-  if (!typerState.start) typerState.start = Date.now();
-  const val = this.value;
-  const s = typerState.snippet;
-  typerState.idx = val.length;
-  // count errors
-  let errs = 0;
-  for (let i = 0; i < val.length; i++) { if (val[i] !== s[i]) errs++; }
-  typerState.errors = errs;
-  const acc = val.length > 0 ? Math.round(((val.length - errs) / val.length) * 100) : 100;
-  document.getElementById('typer-acc').textContent = acc + '%';
-  typerRender();
-  if (val === s) {
-    clearInterval(typerState.timer);
-    typerState.running = false;
-    const elapsed = ((Date.now() - typerState.start) / 1000);
-    const wpm = Math.round((s.length / 5) / (elapsed / 60));
-    document.getElementById('typer-result').textContent = `✓ Done! ${wpm} WPM · ${acc}% accuracy · ${elapsed.toFixed(1)}s`;
-    this.disabled = true;
+function guessAnswer(chosen, correct, btn) {
+  if (guessState.answered) return;
+  guessState.answered = true;
+  const isRight = chosen === correct;
+  // colour all buttons
+  document.querySelectorAll('#guess-options .btn').forEach(b => {
+    if (b.textContent === correct) { b.style.background = 'rgba(134,239,172,0.15)'; b.style.borderColor = '#86efac'; b.style.color = '#86efac'; }
+    else if (b === btn && !isRight) { b.style.background = 'rgba(248,113,113,0.15)'; b.style.borderColor = '#f87171'; b.style.color = '#f87171'; }
+  });
+  if (isRight) {
+    guessState.score++;
+    guessState.streak++;
+    document.getElementById('guess-score').textContent = guessState.score;
+    document.getElementById('guess-streak').textContent = guessState.streak;
+    document.getElementById('guess-result').textContent = '✓ Correct! ' + (guessState.streak > 2 ? '🔥'.repeat(Math.min(guessState.streak, 5)) : '');
+  } else {
+    guessState.streak = 0;
+    document.getElementById('guess-streak').textContent = '0';
+    document.getElementById('guess-result').textContent = `✗ That was ${correct}`;
+    document.getElementById('guess-result').style.color = '#f87171';
   }
-});
+  guessState.round++;
+  setTimeout(() => {
+    document.getElementById('guess-result').style.color = '#86efac';
+    guessNext();
+  }, 1400);
+}
+
+function guessEnd() {
+  const s = guessState;
+  document.getElementById('guess-snippet').textContent = '';
+  document.getElementById('guess-options').innerHTML = '';
+  document.getElementById('guess-round').textContent = 'Done';
+  const pct = Math.round((s.score / 10) * 100);
+  const grade = pct === 100 ? '🏆 Perfect score!' : pct >= 80 ? '🔥 Expert developer!' : pct >= 60 ? '⚡ Solid knowledge!' : pct >= 40 ? '👍 Keep practising!' : '📚 Time to study!';
+  document.getElementById('guess-result').textContent = `${grade} — ${s.score}/10 correct (${pct}%)`;
+}
 
 /* ══════════════════════════════
    GAME 2: MEMORY MATCH
