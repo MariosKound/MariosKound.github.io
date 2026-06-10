@@ -22,7 +22,6 @@
     }
 
     html { scroll-behavior: smooth; }
-
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       background: var(--black);
@@ -31,7 +30,13 @@
       overflow-x: hidden;
     }
 
-    /* ── GRID BACKGROUND ── */
+    /* ── CANVAS BACKGROUND ── */
+    #hero-canvas {
+      position: absolute; inset: 0; z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── GRID OVERLAY ── */
     body::before {
       content: '';
       position: fixed; inset: 0; z-index: 0; pointer-events: none;
@@ -39,618 +44,903 @@
         linear-gradient(var(--border) 1px, transparent 1px),
         linear-gradient(90deg, var(--border) 1px, transparent 1px);
       background-size: 60px 60px;
-      opacity: 0.35;
+      opacity: 0.25;
     }
-
     * { position: relative; z-index: 1; }
 
     /* ── NAV ── */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      background: rgba(10,10,10,0.9);
+      background: rgba(10,10,10,0.92);
       backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
       height: 58px;
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 3rem;
     }
-    .nav-logo {
-      font-family: var(--mono);
-      font-size: 0.85rem;
-      color: var(--orange);
-      letter-spacing: 0.04em;
-    }
+    .nav-logo { font-family: var(--mono); font-size: 0.85rem; color: var(--orange); letter-spacing: 0.04em; }
     .nav-logo span { color: var(--grey); }
     .nav-links { display: flex; gap: 2rem; list-style: none; }
-    .nav-links a {
-      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em;
-      color: var(--grey); text-decoration: none; transition: color 0.2s;
-    }
+    .nav-links a { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--grey); text-decoration: none; transition: color 0.2s; }
     .nav-links a:hover { color: var(--orange); }
 
-    /* ── WRAPPER ── */
+    /* ── WRAP ── */
     .wrap { max-width: 960px; margin: 0 auto; padding: 0 2rem; }
 
-    /* ── SECTION TITLES ── */
-    .section-label {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--orange);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      margin-bottom: 0.5rem;
-    }
-    h2 {
-      font-size: 2rem; font-weight: 800; color: var(--white);
-      margin-bottom: 2.5rem; line-height: 1.2;
-    }
+    /* ── SECTION LABELS ── */
+    .section-label { font-family: var(--mono); font-size: 0.72rem; color: var(--orange); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    h2 { font-size: 2rem; font-weight: 800; color: var(--white); margin-bottom: 2.5rem; line-height: 1.2; }
     h2 em { color: var(--orange); font-style: normal; }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.65s ease, transform 0.65s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
 
     /* ── HERO ── */
     #hero {
-      min-height: 100vh;
-      display: flex; align-items: center;
-      padding: 80px 2rem 4rem;
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 80px 2rem 4rem; overflow: hidden;
     }
     .hero-inner { max-width: 960px; margin: 0 auto; width: 100%; }
-
     .hero-tag {
       display: inline-flex; align-items: center; gap: 0.5rem;
-      font-family: var(--mono); font-size: 0.78rem;
-      color: var(--orange); border: 1px solid var(--orange);
-      padding: 0.3rem 0.8rem; border-radius: 3px; margin-bottom: 2rem;
-      letter-spacing: 0.06em;
+      font-family: var(--mono); font-size: 0.78rem; color: var(--orange);
+      border: 1px solid var(--orange); padding: 0.3rem 0.8rem; border-radius: 3px;
+      margin-bottom: 2rem; letter-spacing: 0.06em;
+      animation: fadeSlideDown 0.8s ease 0.2s both;
     }
     .hero-tag::before { content: '▶'; font-size: 0.6rem; }
 
     .hero-name {
-      font-size: clamp(3rem, 8vw, 5.5rem);
-      font-weight: 900;
-      line-height: 1.0;
-      color: var(--white);
-      margin-bottom: 1.25rem;
-      letter-spacing: -0.02em;
+      font-size: clamp(3rem, 8vw, 5.5rem); font-weight: 900; line-height: 1.0;
+      color: var(--white); margin-bottom: 1.25rem; letter-spacing: -0.02em;
+      animation: fadeSlideDown 0.8s ease 0.4s both;
     }
     .hero-name .line2 { color: var(--orange); }
+    .type-cursor { display: inline-block; width: 4px; height: 0.9em; background: var(--orange); vertical-align: middle; margin-left: 4px; animation: blink 0.9s step-end infinite; }
 
     .hero-sub {
       font-size: 1.05rem; color: var(--grey-lt); max-width: 560px;
       margin-bottom: 2.5rem; line-height: 1.8;
+      animation: fadeSlideDown 0.8s ease 0.6s both;
     }
-
     .hero-stats {
-      display: flex; gap: 2.5rem; flex-wrap: wrap;
-      margin-bottom: 2.5rem; padding: 1.5rem 0;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
+      display: flex; gap: 2.5rem; flex-wrap: wrap; margin-bottom: 2.5rem;
+      padding: 1.5rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      animation: fadeSlideDown 0.8s ease 0.7s both;
     }
     .stat-num { font-size: 2rem; font-weight: 800; color: var(--orange); line-height: 1; }
     .stat-label { font-size: 0.75rem; color: var(--grey); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.25rem; }
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; animation: fadeSlideDown 0.8s ease 0.85s both; }
 
-    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .btn {
-      font-size: 0.85rem; font-weight: 700; padding: 0.75rem 1.75rem;
-      border-radius: 4px; text-decoration: none; transition: all 0.2s;
-      letter-spacing: 0.04em; text-transform: uppercase; display: inline-block;
-    }
+    .btn { font-size: 0.85rem; font-weight: 700; padding: 0.75rem 1.75rem; border-radius: 4px; text-decoration: none; transition: all 0.2s; letter-spacing: 0.04em; text-transform: uppercase; display: inline-block; cursor: pointer; border: none; font-family: inherit; }
     .btn-orange { background: var(--orange); color: var(--black); }
     .btn-orange:hover { background: #fb923c; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(249,115,22,0.35); }
     .btn-ghost { border: 1px solid var(--border); color: var(--grey); background: transparent; }
     .btn-ghost:hover { border-color: var(--orange); color: var(--orange); transform: translateY(-2px); }
 
-    /* ── TERMINAL BLOCK ── */
-    .terminal {
-      background: #0f0f0f; border: 1px solid var(--border);
-      border-radius: 8px; overflow: hidden;
-      margin-bottom: 3rem;
-    }
-    .terminal-bar {
-      background: #1c1c1c; padding: 0.6rem 1rem;
-      display: flex; align-items: center; gap: 0.4rem;
-      border-bottom: 1px solid var(--border);
-    }
+    /* ── TERMINAL ── */
+    .terminal { background: #0f0f0f; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 3rem; }
+    .terminal-bar { background: #1c1c1c; padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.4rem; border-bottom: 1px solid var(--border); }
     .dot { width: 10px; height: 10px; border-radius: 50%; }
-    .dot-r { background: #ff5f57; }
-    .dot-y { background: #febc2e; }
-    .dot-g { background: #28c840; }
+    .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
     .terminal-title { font-family: var(--mono); font-size: 0.72rem; color: var(--grey); margin-left: 0.5rem; }
     .terminal-body { padding: 1.25rem 1.5rem; font-family: var(--mono); font-size: 0.82rem; line-height: 2; }
-    .t-prompt { color: var(--orange); }
-    .t-cmd { color: var(--white); }
-    .t-out { color: #7dd3fc; }
-    .t-comment { color: #4a5568; }
-    .t-str { color: #86efac; }
-    .t-cursor {
-      display: inline-block; width: 8px; height: 14px;
-      background: var(--orange); vertical-align: text-bottom;
-      animation: blink 1.1s step-end infinite;
-    }
-    @keyframes blink { 50% { opacity: 0; } }
-
-    /* ── SECTIONS ── */
-    section { padding: 6rem 0; }
+    .t-prompt { color: var(--orange); } .t-cmd { color: var(--white); } .t-out { color: #7dd3fc; }
+    .t-comment { color: #4a5568; } .t-str { color: #86efac; }
+    .t-cursor { display: inline-block; width: 8px; height: 14px; background: var(--orange); vertical-align: text-bottom; animation: blink 1.1s step-end infinite; }
 
     /* ── SKILLS ── */
     .skills-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-    .skill-block {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 8px; padding: 1.5rem;
-      transition: border-color 0.2s, transform 0.2s;
-    }
+    .skill-block { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; transition: border-color 0.2s, transform 0.2s; }
     .skill-block:hover { border-color: var(--orange); transform: translateY(-3px); }
-    .skill-block-header {
-      display: flex; align-items: center; gap: 0.75rem;
-      margin-bottom: 1rem; padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--border);
-    }
+    .skill-block-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
     .skill-icon { font-size: 1.3rem; }
     .skill-block-title { font-weight: 700; font-size: 0.95rem; color: var(--white); }
     .skill-block-sub { font-size: 0.72rem; color: var(--grey); font-family: var(--mono); }
     .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .tag {
-      font-family: var(--mono); font-size: 0.75rem;
-      padding: 0.2rem 0.6rem; border-radius: 3px;
-      background: #1f1f1f; border: 1px solid #333;
-      color: var(--grey-lt);
-    }
+    .tag { font-family: var(--mono); font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 3px; background: #1f1f1f; border: 1px solid #333; color: var(--grey-lt); }
     .tag-orange { border-color: var(--orange); color: var(--orange); background: var(--orange-g); }
 
+    /* ── SKILL BARS ── */
+    .skill-bars { margin-top: 2.5rem; display: grid; gap: 1rem; }
+    .bar-row { display: grid; grid-template-columns: 140px 1fr 40px; align-items: center; gap: 1rem; }
+    .bar-label { font-family: var(--mono); font-size: 0.78rem; color: var(--grey-lt); }
+    .bar-track { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--orange); border-radius: 3px; width: 0; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
+    .bar-pct { font-family: var(--mono); font-size: 0.72rem; color: var(--orange); text-align: right; }
+
     /* ── EXPERIENCE ── */
-    .exp-item {
-      display: grid; grid-template-columns: 200px 1fr; gap: 2rem;
-      padding: 2rem 0; border-bottom: 1px solid var(--border);
-    }
+    .exp-item { display: grid; grid-template-columns: 200px 1fr; gap: 2rem; padding: 2rem 0; border-bottom: 1px solid var(--border); }
     .exp-item:last-child { border-bottom: none; }
-    .exp-meta { padding-top: 0.2rem; }
     .exp-date { font-family: var(--mono); font-size: 0.75rem; color: var(--orange); margin-bottom: 0.4rem; }
     .exp-org { font-size: 0.82rem; color: var(--grey); line-height: 1.5; }
     .exp-role { font-size: 1.15rem; font-weight: 800; color: var(--white); margin-bottom: 0.5rem; }
-    .exp-badge {
-      display: inline-block; font-family: var(--mono); font-size: 0.65rem;
-      padding: 0.15rem 0.5rem; border-radius: 2px;
-      background: var(--orange-g); border: 1px solid var(--orange);
-      color: var(--orange); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em;
-    }
+    .exp-badge { display: inline-block; font-family: var(--mono); font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 2px; background: var(--orange-g); border: 1px solid var(--orange); color: var(--orange); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
     .exp-desc { font-size: 0.9rem; color: var(--grey-lt); line-height: 1.8; }
     .exp-projects { margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
 
-    /* ── RESEARCH BANNER ── */
-    .research-banner {
-      background: var(--card); border: 1px solid var(--border);
-      border-left: 3px solid var(--orange);
-      border-radius: 0 8px 8px 0; padding: 1.5rem 2rem;
-      margin-bottom: 3rem;
-    }
+    /* ── RESEARCH ── */
+    .research-banner { background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--orange); border-radius: 0 8px 8px 0; padding: 1.5rem 2rem; margin-bottom: 3rem; }
     .research-banner p { font-size: 0.9rem; color: var(--grey-lt); line-height: 1.8; }
     .research-banner strong { color: var(--orange); }
 
     /* ── EDUCATION ── */
     .edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-    .edu-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 8px; padding: 1.75rem;
-      transition: border-color 0.2s;
-    }
-    .edu-card:hover { border-color: var(--orange); }
-    .edu-degree-type {
-      font-family: var(--mono); font-size: 0.7rem; color: var(--orange);
-      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;
-    }
+    .edu-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.75rem; transition: border-color 0.2s, transform 0.2s; }
+    .edu-card:hover { border-color: var(--orange); transform: translateY(-3px); }
+    .edu-degree-type { font-family: var(--mono); font-size: 0.7rem; color: var(--orange); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
     .edu-degree { font-size: 1.05rem; font-weight: 800; color: var(--white); margin-bottom: 0.25rem; }
     .edu-uni { font-size: 0.85rem; color: var(--grey-lt); margin-bottom: 0.5rem; }
     .edu-date { font-family: var(--mono); font-size: 0.75rem; color: var(--grey); }
 
+    /* ══════════════════════════════
+       MINI GAMES
+    ══════════════════════════════ */
+    #games { padding: 6rem 0; }
+    .games-intro { font-size: 0.95rem; color: var(--grey-lt); max-width: 600px; margin-bottom: 3rem; line-height: 1.8; }
+
+    .games-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+    .game-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      overflow: hidden; transition: border-color 0.2s;
+    }
+    .game-card:hover { border-color: var(--orange); }
+    .game-header {
+      padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .game-title-wrap { display: flex; align-items: center; gap: 0.75rem; }
+    .game-icon { font-size: 1.4rem; }
+    .game-name { font-weight: 800; font-size: 1rem; color: var(--white); }
+    .game-desc { font-size: 0.75rem; color: var(--grey); font-family: var(--mono); }
+    .game-body { padding: 1.5rem; }
+
+    /* ── GAME 1: CODE TYPER ── */
+    #typer-snippet {
+      background: #0f0f0f; border: 1px solid var(--border); border-radius: 6px;
+      padding: 1rem; font-family: var(--mono); font-size: 0.82rem; line-height: 1.9;
+      margin-bottom: 1rem; min-height: 80px; letter-spacing: 0.03em;
+      user-select: none;
+    }
+    .char-pending { color: #444; }
+    .char-correct { color: #86efac; }
+    .char-wrong   { color: #f87171; background: rgba(248,113,113,0.15); border-radius: 2px; }
+    .char-cursor  { border-left: 2px solid var(--orange); }
+
+    #typer-input {
+      width: 100%; background: #0f0f0f; border: 1px solid var(--border); border-radius: 6px;
+      padding: 0.6rem 1rem; color: var(--white); font-family: var(--mono); font-size: 0.85rem;
+      outline: none; transition: border-color 0.2s; margin-bottom: 0.75rem;
+    }
+    #typer-input:focus { border-color: var(--orange); }
+    .typer-stats { display: flex; gap: 1.5rem; margin-bottom: 0.75rem; }
+    .typer-stat { text-align: center; }
+    .typer-stat-val { font-size: 1.4rem; font-weight: 800; color: var(--orange); font-family: var(--mono); }
+    .typer-stat-lbl { font-size: 0.7rem; color: var(--grey); text-transform: uppercase; letter-spacing: 0.06em; }
+    .typer-result { font-family: var(--mono); font-size: 0.82rem; color: #86efac; min-height: 1.2em; }
+
+    /* ── GAME 2: MEMORY MATCH ── */
+    .memory-stats { display: flex; gap: 1.5rem; margin-bottom: 1rem; }
+    .memory-stat-val { font-size: 1.4rem; font-weight: 800; color: var(--orange); font-family: var(--mono); }
+    .memory-stat-lbl { font-size: 0.7rem; color: var(--grey); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    #memory-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem;
+      margin-bottom: 0.75rem;
+    }
+    .mem-card {
+      aspect-ratio: 1; border-radius: 6px; cursor: pointer;
+      background: #1f1f1f; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; transition: transform 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+    .mem-card:hover:not(.flipped):not(.matched) { border-color: var(--orange); transform: scale(1.05); }
+    .mem-card.flipped { background: #2a1f0f; border-color: var(--orange); }
+    .mem-card.matched { background: rgba(134,239,172,0.08); border-color: #86efac; cursor: default; }
+    .mem-card .front { display: none; }
+    .mem-card.flipped .front, .mem-card.matched .front { display: block; }
+    .mem-card .back { color: var(--grey); font-size: 1rem; }
+    .mem-card.flipped .back, .mem-card.matched .back { display: none; }
+    .memory-result { font-family: var(--mono); font-size: 0.82rem; color: #86efac; min-height: 1.2em; }
+
+    /* ── GAME 3: BUG CATCHER ── */
+    .game-card.full-width { grid-column: 1 / -1; }
+    #bug-arena {
+      background: #0f0f0f; border: 1px solid var(--border); border-radius: 8px;
+      height: 200px; position: relative; overflow: hidden; margin-bottom: 0.75rem;
+      cursor: crosshair;
+    }
+    .bug {
+      position: absolute; font-size: 1.6rem; cursor: pointer;
+      transition: none; user-select: none; line-height: 1;
+      animation: bugWiggle 0.4s ease-in-out infinite alternate;
+    }
+    @keyframes bugWiggle { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+    .bug-splat { position: absolute; font-size: 1.4rem; pointer-events: none; animation: splatFade 0.5s ease forwards; }
+    @keyframes splatFade { 0% { opacity: 1; transform: scale(1.5); } 100% { opacity: 0; transform: scale(0.5); } }
+    .bug-stats { display: flex; gap: 1.5rem; margin-bottom: 0.75rem; align-items: center; }
+    .bug-stat-val { font-size: 1.4rem; font-weight: 800; color: var(--orange); font-family: var(--mono); }
+    .bug-stat-lbl { font-size: 0.7rem; color: var(--grey); text-transform: uppercase; letter-spacing: 0.06em; }
+    #bug-timer-bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    #bug-timer-fill { height: 100%; background: var(--orange); border-radius: 3px; width: 100%; transition: width 0.1s linear; }
+    .bug-result { font-family: var(--mono); font-size: 0.82rem; color: #86efac; min-height: 1.2em; }
+    #bug-arena-msg {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 0.9rem; color: var(--grey);
+      background: rgba(15,15,15,0.85); backdrop-filter: blur(4px);
+      border-radius: 8px; text-align: center; padding: 1rem;
+    }
+
     /* ── CONTACT ── */
     .contact-grid { display: flex; flex-wrap: wrap; gap: 1rem; }
-    .contact-link {
-      display: flex; align-items: center; gap: 1rem;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 8px; padding: 1.1rem 1.5rem;
-      text-decoration: none; transition: all 0.2s; flex: 1; min-width: 220px;
-    }
+    .contact-link { display: flex; align-items: center; gap: 1rem; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.1rem 1.5rem; text-decoration: none; transition: all 0.2s; flex: 1; min-width: 220px; }
     .contact-link:hover { border-color: var(--orange); transform: translateY(-2px); }
-    .contact-link-icon {
-      width: 38px; height: 38px; border-radius: 6px;
-      background: var(--orange-g); border: 1px solid var(--orange);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; flex-shrink: 0;
-    }
+    .contact-link-icon { width: 38px; height: 38px; border-radius: 6px; background: var(--orange-g); border: 1px solid var(--orange); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
     .contact-link-label { font-size: 0.7rem; color: var(--grey); text-transform: uppercase; letter-spacing: 0.08em; }
     .contact-link-val { font-size: 0.9rem; color: var(--white); font-weight: 600; }
 
-    /* ── DIVIDER ── */
-    .divider {
-      height: 1px; background: var(--border); margin: 0;
-    }
+    .divider { height: 1px; background: var(--border); }
 
-    /* ── FOOTER ── */
-    footer {
-      padding: 2rem 3rem;
-      display: flex; justify-content: space-between; align-items: center;
-      font-family: var(--mono); font-size: 0.72rem; color: var(--grey);
-      flex-wrap: wrap; gap: 1rem;
-    }
+    footer { padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: 0.72rem; color: var(--grey); flex-wrap: wrap; gap: 1rem; }
     footer span { color: var(--orange); }
+
+    /* ── KEYFRAMES ── */
+    @keyframes blink { 50% { opacity: 0; } }
+    @keyframes fadeSlideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: none; } }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 700px) {
       nav { padding: 0 1.25rem; }
       .nav-links { gap: 1rem; }
-      .nav-links a { font-size: 0.7rem; }
       .wrap { padding: 0 1.25rem; }
-      .skills-layout { grid-template-columns: 1fr; }
+      .skills-layout, .games-grid, .edu-grid { grid-template-columns: 1fr; }
       .exp-item { grid-template-columns: 1fr; gap: 0.5rem; }
-      .edu-grid { grid-template-columns: 1fr; }
+      .game-card.full-width { grid-column: 1; }
       footer { padding: 1.5rem; flex-direction: column; align-items: flex-start; }
+      .bar-row { grid-template-columns: 100px 1fr 36px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
-  <nav>
-    <div class="nav-logo"><span>~/</span>marios-koundouris</div>
-    <ul class="nav-links">
-      <li><a href="#skills">Skills</a></li>
-      <li><a href="#experience">Experience</a></li>
-      <li><a href="#research">Research</a></li>
-      <li><a href="#education">Education</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-  </nav>
+<!-- NAV -->
+<nav>
+  <div class="nav-logo"><span>~/</span>marios-koundouris</div>
+  <ul class="nav-links">
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#research">Research</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#games">Games</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
 
-  <!-- HERO -->
-  <section id="hero">
-    <div class="hero-inner">
-      <div class="hero-tag">Available for collaboration</div>
-      <h1 class="hero-name">
-        Marios<br>
-        <span class="line2">Koundouris</span>
-      </h1>
-      <p class="hero-sub">
-        Senior Project Manager &amp; Software Engineer. Full-stack developer, EU research coordinator,
-        and WordPress infrastructure specialist based in Nicosia, Cyprus.
-      </p>
+<!-- HERO -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-inner">
+    <div class="hero-tag">Available for collaboration</div>
+    <h1 class="hero-name">
+      <span id="hero-line1"></span><br>
+      <span class="line2" id="hero-line2"></span><span class="type-cursor" id="hero-cursor"></span>
+    </h1>
+    <p class="hero-sub">
+      Senior Project Manager &amp; Software Engineer. Full-stack developer, EU research coordinator,
+      and WordPress infrastructure specialist based in Nicosia, Cyprus.
+    </p>
+    <div class="hero-stats">
+      <div><div class="stat-num" data-count="5">0</div><div class="stat-label">EU Projects</div></div>
+      <div><div class="stat-num" data-count="2">0</div><div class="stat-label">Years at CIP</div></div>
+      <div><div class="stat-num">MSc</div><div class="stat-label">Data Science</div></div>
+      <div><div class="stat-num" data-count="6">0</div><div class="stat-label">Languages</div></div>
+    </div>
+    <div class="hero-cta">
+      <a href="#contact" class="btn btn-orange">Get in touch</a>
+      <a href="#experience" class="btn btn-ghost">View experience</a>
+    </div>
+  </div>
+</section>
 
-      <div class="hero-stats">
-        <div>
-          <div class="stat-num">5+</div>
-          <div class="stat-label">EU Projects</div>
-        </div>
-        <div>
-          <div class="stat-num">2+</div>
-          <div class="stat-label">Years at CIP</div>
-        </div>
-        <div>
-          <div class="stat-num">MSc</div>
-          <div class="stat-label">Data Science</div>
-        </div>
-        <div>
-          <div class="stat-num">6+</div>
-          <div class="stat-label">Languages</div>
-        </div>
+<div class="divider"></div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="wrap">
+    <p class="section-label reveal">// technical profile</p>
+    <h2 class="reveal reveal-delay-1">Skills &amp; <em>Stack</em></h2>
+
+    <div class="terminal reveal reveal-delay-2">
+      <div class="terminal-bar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <span class="terminal-title">marios@cip:~$ profile.sh</span>
       </div>
-
-      <div class="hero-cta">
-        <a href="#contact" class="btn btn-orange">Get in touch</a>
-        <a href="#experience" class="btn btn-ghost">View experience</a>
+      <div class="terminal-body">
+        <div><span class="t-prompt">$ </span><span class="t-cmd">cat skills.json</span></div>
+        <div><span class="t-comment">{</span></div>
+        <div>&nbsp;&nbsp;<span class="t-out">"languages"</span><span class="t-comment">: [</span><span class="t-str">"PHP"</span><span class="t-comment">, </span><span class="t-str">"Java"</span><span class="t-comment">, </span><span class="t-str">"C"</span><span class="t-comment">, </span><span class="t-str">"C++"</span><span class="t-comment">, </span><span class="t-str">"C#"</span><span class="t-comment">, </span><span class="t-str">"SQL"</span><span class="t-comment">],</span></div>
+        <div>&nbsp;&nbsp;<span class="t-out">"platforms"</span><span class="t-comment">: [</span><span class="t-str">"WordPress"</span><span class="t-comment">, </span><span class="t-str">"Android Studio"</span><span class="t-comment">, </span><span class="t-str">"Unity3D"</span><span class="t-comment">, </span><span class="t-str">"VR/AR"</span><span class="t-comment">],</span></div>
+        <div>&nbsp;&nbsp;<span class="t-out">"research"</span><span class="t-comment">: [</span><span class="t-str">"Erasmus+"</span><span class="t-comment">, </span><span class="t-str">"H2020"</span><span class="t-comment">, </span><span class="t-str">"Interreg"</span><span class="t-comment">, </span><span class="t-str">"ERA Chair"</span><span class="t-comment">],</span></div>
+        <div>&nbsp;&nbsp;<span class="t-out">"role"</span><span class="t-comment">: </span><span class="t-str">"Senior Project Manager @ CIP"</span></div>
+        <div><span class="t-comment">}</span></div>
+        <div><span class="t-prompt">$ </span><span class="t-cursor"></span></div>
       </div>
     </div>
-  </section>
 
-  <div class="divider"></div>
-
-  <!-- TERMINAL / SKILLS INTRO -->
-  <section id="skills">
-    <div class="wrap">
-      <p class="section-label">// technical profile</p>
-      <h2>Skills &amp; <em>Stack</em></h2>
-
-      <div class="terminal">
-        <div class="terminal-bar">
-          <div class="dot dot-r"></div>
-          <div class="dot dot-y"></div>
-          <div class="dot dot-g"></div>
-          <span class="terminal-title">marios@cip:~$ profile.sh</span>
-        </div>
-        <div class="terminal-body">
-          <div><span class="t-prompt">$ </span><span class="t-cmd">cat skills.json</span></div>
-          <div><span class="t-comment">{</span></div>
-          <div>&nbsp;&nbsp;<span class="t-out">"languages"</span><span class="t-comment">: [</span><span class="t-str">"PHP"</span><span class="t-comment">, </span><span class="t-str">"Java"</span><span class="t-comment">, </span><span class="t-str">"C"</span><span class="t-comment">, </span><span class="t-str">"C++"</span><span class="t-comment">, </span><span class="t-str">"C#"</span><span class="t-comment">, </span><span class="t-str">"SQL"</span><span class="t-comment">],</span></div>
-          <div>&nbsp;&nbsp;<span class="t-out">"platforms"</span><span class="t-comment">: [</span><span class="t-str">"WordPress"</span><span class="t-comment">, </span><span class="t-str">"Android Studio"</span><span class="t-comment">, </span><span class="t-str">"Unity3D"</span><span class="t-comment">, </span><span class="t-str">"VR/AR"</span><span class="t-comment">],</span></div>
-          <div>&nbsp;&nbsp;<span class="t-out">"research"</span><span class="t-comment">: [</span><span class="t-str">"Erasmus+"</span><span class="t-comment">, </span><span class="t-str">"H2020"</span><span class="t-comment">, </span><span class="t-str">"Interreg"</span><span class="t-comment">, </span><span class="t-str">"ERA Chair"</span><span class="t-comment">],</span></div>
-          <div>&nbsp;&nbsp;<span class="t-out">"role"</span><span class="t-comment">: </span><span class="t-str">"Senior Project Manager @ CIP"</span></div>
-          <div><span class="t-comment">}</span></div>
-          <div><span class="t-prompt">$ </span><span class="t-cursor"></span></div>
-        </div>
+    <div class="skills-layout">
+      <div class="skill-block reveal reveal-delay-1">
+        <div class="skill-block-header"><span class="skill-icon">⌨</span><div><div class="skill-block-title">Programming Languages</div><div class="skill-block-sub">core development stack</div></div></div>
+        <div class="tags"><span class="tag tag-orange">PHP</span><span class="tag tag-orange">Java</span><span class="tag tag-orange">C</span><span class="tag tag-orange">C++</span><span class="tag tag-orange">C#</span><span class="tag tag-orange">SQL</span></div>
       </div>
-
-      <div class="skills-layout">
-        <div class="skill-block">
-          <div class="skill-block-header">
-            <span class="skill-icon">⌨</span>
-            <div>
-              <div class="skill-block-title">Programming Languages</div>
-              <div class="skill-block-sub">core development stack</div>
-            </div>
-          </div>
-          <div class="tags">
-            <span class="tag tag-orange">PHP</span>
-            <span class="tag tag-orange">Java</span>
-            <span class="tag tag-orange">C</span>
-            <span class="tag tag-orange">C++</span>
-            <span class="tag tag-orange">C#</span>
-            <span class="tag tag-orange">SQL</span>
-          </div>
-        </div>
-
-        <div class="skill-block">
-          <div class="skill-block-header">
-            <span class="skill-icon">🌐</span>
-            <div>
-              <div class="skill-block-title">Web &amp; WordPress</div>
-              <div class="skill-block-sub">cms &amp; infrastructure</div>
-            </div>
-          </div>
-          <div class="tags">
-            <span class="tag">Custom Themes</span>
-            <span class="tag">Plugin Dev</span>
-            <span class="tag">SEO Optimisation</span>
-            <span class="tag">SiteGround</span>
-            <span class="tag">HostGator</span>
-            <span class="tag">Server Admin</span>
-          </div>
-        </div>
-
-        <div class="skill-block">
-          <div class="skill-block-header">
-            <span class="skill-icon">📱</span>
-            <div>
-              <div class="skill-block-title">Mobile &amp; Interactive</div>
-              <div class="skill-block-sub">android · immersive tech</div>
-            </div>
-          </div>
-          <div class="tags">
-            <span class="tag">Android Studio</span>
-            <span class="tag">Unity 2D/3D</span>
-            <span class="tag">VR / AR</span>
-            <span class="tag">Gamification</span>
-            <span class="tag">Linux</span>
-            <span class="tag">Windows</span>
-          </div>
-        </div>
-
-        <div class="skill-block">
-          <div class="skill-block-header">
-            <span class="skill-icon">🔬</span>
-            <div>
-              <div class="skill-block-title">Research &amp; Management</div>
-              <div class="skill-block-sub">eu projects · coordination</div>
-            </div>
-          </div>
-          <div class="tags">
-            <span class="tag">EU Project Mgmt</span>
-            <span class="tag">WP Coordination</span>
-            <span class="tag">Data Science</span>
-            <span class="tag">Academic Writing</span>
-            <span class="tag">Conference Mgmt</span>
-          </div>
-        </div>
+      <div class="skill-block reveal reveal-delay-2">
+        <div class="skill-block-header"><span class="skill-icon">🌐</span><div><div class="skill-block-title">Web &amp; WordPress</div><div class="skill-block-sub">cms &amp; infrastructure</div></div></div>
+        <div class="tags"><span class="tag">Custom Themes</span><span class="tag">Plugin Dev</span><span class="tag">SEO Optimisation</span><span class="tag">SiteGround</span><span class="tag">HostGator</span><span class="tag">Server Admin</span></div>
+      </div>
+      <div class="skill-block reveal reveal-delay-3">
+        <div class="skill-block-header"><span class="skill-icon">📱</span><div><div class="skill-block-title">Mobile &amp; Interactive</div><div class="skill-block-sub">android · immersive tech</div></div></div>
+        <div class="tags"><span class="tag">Android Studio</span><span class="tag">Unity 2D/3D</span><span class="tag">VR / AR</span><span class="tag">Gamification</span><span class="tag">Linux</span><span class="tag">Windows</span></div>
+      </div>
+      <div class="skill-block reveal reveal-delay-4">
+        <div class="skill-block-header"><span class="skill-icon">🔬</span><div><div class="skill-block-title">Research &amp; Management</div><div class="skill-block-sub">eu projects · coordination</div></div></div>
+        <div class="tags"><span class="tag">EU Project Mgmt</span><span class="tag">WP Coordination</span><span class="tag">Data Science</span><span class="tag">Academic Writing</span><span class="tag">Conference Mgmt</span></div>
       </div>
     </div>
-  </section>
 
-  <div class="divider"></div>
-
-  <!-- EXPERIENCE -->
-  <section id="experience">
-    <div class="wrap">
-      <p class="section-label">// work history</p>
-      <h2>Professional <em>Experience</em></h2>
-
-      <div class="exp-item">
-        <div class="exp-meta">
-          <div class="exp-date">Sep 2025 — Present</div>
-          <div class="exp-org">C.I.P. Citizens in Power<br>Nicosia, Cyprus</div>
-        </div>
-        <div>
-          <div class="exp-badge">Current role</div>
-          <div class="exp-role">Senior Project Manager</div>
-          <p class="exp-desc">
-            Leading technical and project management operations for EU-funded initiatives.
-            Overseeing cross-functional team coordination, deliverable management, digital
-            infrastructure strategy, and stakeholder reporting at organisational level.
-          </p>
-        </div>
-      </div>
-
-      <div class="exp-item">
-        <div class="exp-meta">
-          <div class="exp-date">Oct 2023 — Sep 2025</div>
-          <div class="exp-org">C.I.P. Citizens in Power<br>Nicosia, Cyprus</div>
-        </div>
-        <div>
-          <div class="exp-role">IT &amp; Project Manager</div>
-          <p class="exp-desc">
-            Managed multiple WordPress projects end-to-end: custom theme and plugin development,
-            performance optimisation, SEO, and secure scalable architecture. Administered hosting
-            environments on SiteGround and HostGator — server configuration, scheduled backups,
-            security hardening, and support for high-traffic production sites.
-          </p>
-        </div>
-      </div>
-
-      <div class="exp-item">
-        <div class="exp-meta">
-          <div class="exp-date">Aug 2021 — Oct 2023</div>
-          <div class="exp-org">Cyprus University of Technology<br>UNESCO &amp; ERA Chair<br>Limassol, Cyprus</div>
-        </div>
-        <div>
-          <div class="exp-role">Associate Researcher</div>
-          <p class="exp-desc">
-            Dual role as active researcher and software developer across five EU-funded projects,
-            with Work Package coordination responsibilities. Organised international conferences
-            and symposia, published research papers, and presented at local and international venues.
-          </p>
-          <div class="exp-projects">
-            <span class="tag tag-orange">Interreg DigiArc</span>
-            <span class="tag tag-orange">ERA Chair Mnemosyne</span>
-            <span class="tag tag-orange">H2020 TexTour</span>
-            <span class="tag tag-orange">Erasmus+ GLAMers</span>
-            <span class="tag tag-orange">Erasmus+ CREAMS</span>
-          </div>
-        </div>
-      </div>
+    <!-- SKILL BARS -->
+    <div class="skill-bars reveal" id="skill-bars" style="margin-top:2.5rem">
+      <div class="bar-row"><span class="bar-label">WordPress / PHP</span><div class="bar-track"><div class="bar-fill" data-width="92"></div></div><span class="bar-pct">92%</span></div>
+      <div class="bar-row"><span class="bar-label">Java / Android</span><div class="bar-track"><div class="bar-fill" data-width="85"></div></div><span class="bar-pct">85%</span></div>
+      <div class="bar-row"><span class="bar-label">C / C++ / C#</span><div class="bar-track"><div class="bar-fill" data-width="80"></div></div><span class="bar-pct">80%</span></div>
+      <div class="bar-row"><span class="bar-label">Unity / VR / AR</span><div class="bar-track"><div class="bar-fill" data-width="75"></div></div><span class="bar-pct">75%</span></div>
+      <div class="bar-row"><span class="bar-label">Data Science</span><div class="bar-track"><div class="bar-fill" data-width="78"></div></div><span class="bar-pct">78%</span></div>
+      <div class="bar-row"><span class="bar-label">EU Project Mgmt</span><div class="bar-track"><div class="bar-fill" data-width="95"></div></div><span class="bar-pct">95%</span></div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <div class="divider"></div>
+<div class="divider"></div>
 
-  <!-- RESEARCH -->
-  <section id="research">
-    <div class="wrap">
-      <p class="section-label">// eu research</p>
-      <h2>Research <em>Expertise</em></h2>
-
-      <div class="research-banner">
-        <p>
-          Contributed to <strong>5 EU-funded research projects</strong> spanning Interreg, H2020, ERA Chair,
-          and Erasmus+ programmes — operating simultaneously as researcher, software developer, and
-          Work Package coordinator. Published academic findings and presented at <strong>local and
-          international conferences</strong> on digital cultural heritage, gamification, and educational technology.
-        </p>
-      </div>
-
-      <div class="skills-layout">
-        <div class="skill-block">
-          <div class="skill-block-header">
-            <span class="skill-icon">🏛</span>
-            <div>
-              <div class="skill-block-title">Digital Cultural Heritage</div>
-              <div class="skill-block-sub">interreg · era chair · h2020</div>
-            </div>
-          </div>
-          <div class="tags">
-            <span class="tag">DigiArc</span>
-            <span class="tag">Mnemosyne</span>
-            <span class="tag">TexTour</span>
-            <span class="tag">WP Coordination</span>
-          </div>
-        </div>
-
-        <div class="skill-block">
-          <div class="skill-block-header">
-            <span class="skill-icon">🎓</span>
-            <div>
-              <div class="skill-block-title">Educational Technology</div>
-              <div class="skill-block-sub">erasmus+ projects</div>
-            </div>
-          </div>
-          <div class="tags">
-            <span class="tag">GLAMers</span>
-            <span class="tag">CREAMS</span>
-            <span class="tag">Gamification</span>
-            <span class="tag">E-learning</span>
-          </div>
-        </div>
-
-        <div class="skill-block">
-          <div class="skill-block-header">
-            <span class="skill-icon">📄</span>
-            <div>
-              <div class="skill-block-title">Dissemination</div>
-              <div class="skill-block-sub">academic publishing</div>
-            </div>
-          </div>
-          <div class="tags">
-            <span class="tag">Research Papers</span>
-            <span class="tag">Conference Talks</span>
-            <span class="tag">International Symposia</span>
-          </div>
-        </div>
-
-        <div class="skill-block">
-          <div class="skill-block-header">
-            <span class="skill-icon">🤝</span>
-            <div>
-              <div class="skill-block-title">Project Governance</div>
-              <div class="skill-block-sub">coordination &amp; reporting</div>
-            </div>
-          </div>
-          <div class="tags">
-            <span class="tag">Work Packages</span>
-            <span class="tag">Milestone Tracking</span>
-            <span class="tag">Consortium Mgmt</span>
-            <span class="tag">EU Reporting</span>
-          </div>
-        </div>
-      </div>
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="wrap">
+    <p class="section-label reveal">// work history</p>
+    <h2 class="reveal reveal-delay-1">Professional <em>Experience</em></h2>
+    <div class="exp-item reveal">
+      <div class="exp-meta"><div class="exp-date">Sep 2025 — Present</div><div class="exp-org">C.I.P. Citizens in Power<br>Nicosia, Cyprus</div></div>
+      <div><div class="exp-badge">Current role</div><div class="exp-role">Senior Project Manager</div><p class="exp-desc">Leading technical and project management operations for EU-funded initiatives. Overseeing cross-functional team coordination, deliverable management, digital infrastructure strategy, and stakeholder reporting at organisational level.</p></div>
     </div>
-  </section>
+    <div class="exp-item reveal">
+      <div class="exp-meta"><div class="exp-date">Oct 2023 — Sep 2025</div><div class="exp-org">C.I.P. Citizens in Power<br>Nicosia, Cyprus</div></div>
+      <div><div class="exp-role">IT &amp; Project Manager</div><p class="exp-desc">Managed multiple WordPress projects end-to-end: custom theme and plugin development, performance optimisation, SEO, and secure scalable architecture. Administered hosting environments on SiteGround and HostGator — server configuration, scheduled backups, security hardening, and support for high-traffic production sites.</p></div>
+    </div>
+    <div class="exp-item reveal">
+      <div class="exp-meta"><div class="exp-date">Aug 2021 — Oct 2023</div><div class="exp-org">Cyprus University of Technology<br>UNESCO &amp; ERA Chair<br>Limassol, Cyprus</div></div>
+      <div><div class="exp-role">Associate Researcher</div><p class="exp-desc">Dual role as active researcher and software developer across five EU-funded projects, with Work Package coordination responsibilities. Organised international conferences and symposia, published research papers, and presented at local and international venues.</p><div class="exp-projects"><span class="tag tag-orange">Interreg DigiArc</span><span class="tag tag-orange">ERA Chair Mnemosyne</span><span class="tag tag-orange">H2020 TexTour</span><span class="tag tag-orange">Erasmus+ GLAMers</span><span class="tag tag-orange">Erasmus+ CREAMS</span></div></div>
+    </div>
+  </div>
+</section>
 
-  <div class="divider"></div>
+<div class="divider"></div>
 
-  <!-- EDUCATION -->
-  <section id="education">
-    <div class="wrap">
-      <p class="section-label">// academic background</p>
-      <h2>Education</h2>
-      <div class="edu-grid">
-        <div class="edu-card">
-          <div class="edu-degree-type">Master's Degree</div>
-          <div class="edu-degree">Data Science</div>
-          <div class="edu-uni">Cyprus University of Technology</div>
-          <div class="edu-date">Sep 2022 — Dec 2023</div>
+<!-- RESEARCH -->
+<section id="research">
+  <div class="wrap">
+    <p class="section-label reveal">// eu research</p>
+    <h2 class="reveal reveal-delay-1">Research <em>Expertise</em></h2>
+    <div class="research-banner reveal reveal-delay-2">
+      <p>Contributed to <strong>5 EU-funded research projects</strong> spanning Interreg, H2020, ERA Chair, and Erasmus+ programmes — operating simultaneously as researcher, software developer, and Work Package coordinator. Published academic findings and presented at <strong>local and international conferences</strong> on digital cultural heritage, gamification, and educational technology.</p>
+    </div>
+    <div class="skills-layout">
+      <div class="skill-block reveal reveal-delay-1"><div class="skill-block-header"><span class="skill-icon">🏛</span><div><div class="skill-block-title">Digital Cultural Heritage</div><div class="skill-block-sub">interreg · era chair · h2020</div></div></div><div class="tags"><span class="tag">DigiArc</span><span class="tag">Mnemosyne</span><span class="tag">TexTour</span><span class="tag">WP Coordination</span></div></div>
+      <div class="skill-block reveal reveal-delay-2"><div class="skill-block-header"><span class="skill-icon">🎓</span><div><div class="skill-block-title">Educational Technology</div><div class="skill-block-sub">erasmus+ projects</div></div></div><div class="tags"><span class="tag">GLAMers</span><span class="tag">CREAMS</span><span class="tag">Gamification</span><span class="tag">E-learning</span></div></div>
+      <div class="skill-block reveal reveal-delay-3"><div class="skill-block-header"><span class="skill-icon">📄</span><div><div class="skill-block-title">Dissemination</div><div class="skill-block-sub">academic publishing</div></div></div><div class="tags"><span class="tag">Research Papers</span><span class="tag">Conference Talks</span><span class="tag">International Symposia</span></div></div>
+      <div class="skill-block reveal reveal-delay-4"><div class="skill-block-header"><span class="skill-icon">🤝</span><div><div class="skill-block-title">Project Governance</div><div class="skill-block-sub">coordination &amp; reporting</div></div></div><div class="tags"><span class="tag">Work Packages</span><span class="tag">Milestone Tracking</span><span class="tag">Consortium Mgmt</span><span class="tag">EU Reporting</span></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="wrap">
+    <p class="section-label reveal">// academic background</p>
+    <h2 class="reveal reveal-delay-1">Education</h2>
+    <div class="edu-grid">
+      <div class="edu-card reveal reveal-delay-1"><div class="edu-degree-type">Master's Degree</div><div class="edu-degree">Data Science</div><div class="edu-uni">Cyprus University of Technology</div><div class="edu-date">Sep 2022 — Dec 2023</div></div>
+      <div class="edu-card reveal reveal-delay-2"><div class="edu-degree-type">Bachelor's Degree</div><div class="edu-degree">Computer Science &amp; Engineering</div><div class="edu-uni">Cyprus University of Technology</div><div class="edu-date">Sep 2017 — Dec 2021</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- MINI GAMES -->
+<section id="games">
+  <div class="wrap">
+    <p class="section-label reveal">// mini games</p>
+    <h2 class="reveal reveal-delay-1">Play <em>Around</em></h2>
+    <p class="games-intro reveal reveal-delay-2">A developer's portfolio should be interactive. Three quick games — all themed around programming and debugging. No installs, no logins, just play.</p>
+
+    <div class="games-grid">
+
+      <!-- GAME 1: CODE TYPER -->
+      <div class="game-card reveal reveal-delay-1">
+        <div class="game-header">
+          <div class="game-title-wrap">
+            <span class="game-icon">⌨</span>
+            <div><div class="game-name">Code Typer</div><div class="game-desc">type the snippet · measure your WPM</div></div>
+          </div>
+          <button class="btn btn-orange" onclick="typerStart()" id="typer-btn" style="padding:0.4rem 1rem;font-size:0.75rem">Start</button>
         </div>
-        <div class="edu-card">
-          <div class="edu-degree-type">Bachelor's Degree</div>
-          <div class="edu-degree">Computer Science &amp; Engineering</div>
-          <div class="edu-uni">Cyprus University of Technology</div>
-          <div class="edu-date">Sep 2017 — Dec 2021</div>
+        <div class="game-body">
+          <div class="typer-stats">
+            <div class="typer-stat"><div class="typer-stat-val" id="typer-wpm">0</div><div class="typer-stat-lbl">WPM</div></div>
+            <div class="typer-stat"><div class="typer-stat-val" id="typer-acc">—</div><div class="typer-stat-lbl">Accuracy</div></div>
+            <div class="typer-stat"><div class="typer-stat-val" id="typer-time">0s</div><div class="typer-stat-lbl">Time</div></div>
+          </div>
+          <div id="typer-snippet"></div>
+          <input id="typer-input" type="text" placeholder="Press Start then type here..." disabled autocomplete="off" spellcheck="false" />
+          <div class="typer-result" id="typer-result"></div>
         </div>
       </div>
-    </div>
-  </section>
 
-  <div class="divider"></div>
-
-  <!-- CONTACT -->
-  <section id="contact">
-    <div class="wrap">
-      <p class="section-label">// get in touch</p>
-      <h2>Contact</h2>
-      <div class="contact-grid">
-        <a href="mailto:marioskoundouris@gmail.com" class="contact-link">
-          <div class="contact-link-icon">✉</div>
-          <div>
-            <div class="contact-link-label">Email</div>
-            <div class="contact-link-val">marioskoundouris@gmail.com</div>
+      <!-- GAME 2: MEMORY MATCH -->
+      <div class="game-card reveal reveal-delay-2">
+        <div class="game-header">
+          <div class="game-title-wrap">
+            <span class="game-icon">🧠</span>
+            <div><div class="game-name">Memory Match</div><div class="game-desc">match the tech pairs · test your memory</div></div>
           </div>
-        </a>
-        <a href="https://www.linkedin.com/in/marioskoundouris-103467265" target="_blank" rel="noopener" class="contact-link">
-          <div class="contact-link-icon">in</div>
-          <div>
-            <div class="contact-link-label">LinkedIn</div>
-            <div class="contact-link-val">marioskoundouris</div>
+          <button class="btn btn-orange" onclick="memoryStart()" id="memory-btn" style="padding:0.4rem 1rem;font-size:0.75rem">Start</button>
+        </div>
+        <div class="game-body">
+          <div class="memory-stats">
+            <div class="typer-stat"><div class="memory-stat-val" id="mem-moves">0</div><div class="memory-stat-lbl">Moves</div></div>
+            <div class="typer-stat"><div class="memory-stat-val" id="mem-pairs">0/8</div><div class="memory-stat-lbl">Pairs</div></div>
+            <div class="typer-stat"><div class="memory-stat-val" id="mem-time">0s</div><div class="memory-stat-lbl">Time</div></div>
           </div>
-        </a>
-        <a href="#" class="contact-link">
-          <div class="contact-link-icon">📍</div>
-          <div>
-            <div class="contact-link-label">Location</div>
-            <div class="contact-link-val">Nicosia, Cyprus</div>
-          </div>
-        </a>
+          <div id="memory-grid"></div>
+          <div class="memory-result" id="memory-result"></div>
+        </div>
       </div>
+
+      <!-- GAME 3: BUG CATCHER -->
+      <div class="game-card full-width reveal">
+        <div class="game-header">
+          <div class="game-title-wrap">
+            <span class="game-icon">🐛</span>
+            <div><div class="game-name">Bug Catcher</div><div class="game-desc">squash the bugs before they escape · 30 seconds</div></div>
+          </div>
+          <button class="btn btn-orange" onclick="bugStart()" id="bug-btn" style="padding:0.4rem 1rem;font-size:0.75rem">Start</button>
+        </div>
+        <div class="game-body">
+          <div class="bug-stats">
+            <div><div class="bug-stat-val" id="bug-score">0</div><div class="bug-stat-lbl">Bugs Fixed</div></div>
+            <div><div class="bug-stat-val" id="bug-missed">0</div><div class="bug-stat-lbl">Escaped</div></div>
+            <div id="bug-timer-bar"><div id="bug-timer-fill"></div></div>
+          </div>
+          <div id="bug-arena">
+            <div id="bug-arena-msg">Click <strong style="color:var(--orange)">Start</strong> to begin — squash all the bugs! 🐛</div>
+          </div>
+          <div class="bug-result" id="bug-result"></div>
+        </div>
+      </div>
+
     </div>
-  </section>
+  </div>
+</section>
 
-  <div class="divider"></div>
+<div class="divider"></div>
 
-  <footer>
-    <span>© 2026 Marios Koundouris</span>
-    <span style="color:var(--grey)">Built with <span>♥</span> · Nicosia, Cyprus</span>
-  </footer>
+<!-- CONTACT -->
+<section id="contact">
+  <div class="wrap">
+    <p class="section-label reveal">// get in touch</p>
+    <h2 class="reveal reveal-delay-1">Contact</h2>
+    <div class="contact-grid">
+      <a href="mailto:marioskoundouris@gmail.com" class="contact-link reveal reveal-delay-1">
+        <div class="contact-link-icon">✉</div>
+        <div><div class="contact-link-label">Email</div><div class="contact-link-val">marioskoundouris@gmail.com</div></div>
+      </a>
+      <a href="https://www.linkedin.com/in/marioskoundouris-103467265" target="_blank" rel="noopener" class="contact-link reveal reveal-delay-2">
+        <div class="contact-link-icon">in</div>
+        <div><div class="contact-link-label">LinkedIn</div><div class="contact-link-val">marioskoundouris</div></div>
+      </a>
+      <a href="#" class="contact-link reveal reveal-delay-3">
+        <div class="contact-link-icon">📍</div>
+        <div><div class="contact-link-label">Location</div><div class="contact-link-val">Nicosia, Cyprus</div></div>
+      </a>
+    </div>
+  </div>
+</section>
 
+<div class="divider"></div>
+<footer>
+  <span>© 2026 Marios Koundouris</span>
+  <span style="color:var(--grey)">Built with <span>♥</span> · Nicosia, Cyprus</span>
+</footer>
+
+<script>
+/* ══════════════════════════════
+   CANVAS PARTICLES
+══════════════════════════════ */
+(function(){
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  const symbols = ['{', '}', '<', '>', '//', '=>', '()', '[]', '&&', '!=', '01', '10', '++', '--', '/*'];
+  let particles = [];
+
+  function resize() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+  }
+
+  function spawn() {
+    return {
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: -Math.random() * 0.6 - 0.2,
+      alpha: Math.random() * 0.25 + 0.05,
+      size: Math.random() * 5 + 9,
+      sym: symbols[Math.floor(Math.random() * symbols.length)]
+    };
+  }
+
+  function init() {
+    resize();
+    particles = Array.from({length: 55}, spawn);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '';
+    particles.forEach(p => {
+      ctx.font = `${p.size}px 'Courier New', monospace`;
+      ctx.fillStyle = `rgba(249,115,22,${p.alpha})`;
+      ctx.fillText(p.sym, p.x, p.y);
+      p.x += p.vx; p.y += p.vy;
+      if (p.y < -20) { Object.assign(p, spawn(), {y: canvas.height + 20}); }
+      if (p.x < -30) p.x = canvas.width + 10;
+      if (p.x > canvas.width + 30) p.x = -10;
+    });
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  init(); draw();
+})();
+
+/* ══════════════════════════════
+   TYPEWRITER HERO
+══════════════════════════════ */
+(function(){
+  const line1 = document.getElementById('hero-line1');
+  const line2 = document.getElementById('hero-line2');
+  const cursor = document.getElementById('hero-cursor');
+  const word1 = 'Marios';
+  const word2 = 'Koundouris';
+  let i = 0;
+
+  function type() {
+    if (i <= word1.length) {
+      line1.textContent = word1.slice(0, i);
+      i++;
+      setTimeout(type, 80);
+    } else {
+      let j = 0;
+      function type2() {
+        line2.textContent = word2.slice(0, j);
+        j++;
+        if (j <= word2.length) setTimeout(type2, 80);
+        else { cursor.style.display = 'none'; }
+      }
+      setTimeout(type2, 200);
+    }
+  }
+  setTimeout(type, 600);
+})();
+
+/* ══════════════════════════════
+   COUNTER ANIMATION
+══════════════════════════════ */
+(function(){
+  const els = document.querySelectorAll('.stat-num[data-count]');
+  let fired = false;
+  const io = new IntersectionObserver(entries => {
+    if (!fired && entries.some(e => e.isIntersecting)) {
+      fired = true;
+      els.forEach(el => {
+        const target = +el.dataset.count;
+        let cur = 0;
+        const step = () => {
+          cur++;
+          el.textContent = cur + '+';
+          if (cur < target) setTimeout(step, 120);
+        };
+        step();
+      });
+    }
+  });
+  els.forEach(el => io.observe(el));
+})();
+
+/* ══════════════════════════════
+   SCROLL REVEAL
+══════════════════════════════ */
+(function(){
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+})();
+
+/* ══════════════════════════════
+   SKILL BARS
+══════════════════════════════ */
+(function(){
+  const container = document.getElementById('skill-bars');
+  let fired = false;
+  const io = new IntersectionObserver(entries => {
+    if (!fired && entries[0].isIntersecting) {
+      fired = true;
+      container.querySelectorAll('.bar-fill').forEach((bar, i) => {
+        setTimeout(() => { bar.style.width = bar.dataset.width + '%'; }, i * 120);
+      });
+    }
+  }, { threshold: 0.3 });
+  io.observe(container);
+})();
+
+/* ══════════════════════════════
+   GAME 1: CODE TYPER
+══════════════════════════════ */
+const SNIPPETS = [
+  `function greet(name) {\n  return "Hello, " + name + "!";\n}`,
+  `for (int i = 0; i < 10; i++) {\n  System.out.println(i);\n}`,
+  `SELECT * FROM users\nWHERE active = 1\nORDER BY name ASC;`,
+  `<?php\n$arr = [1, 2, 3];\nforeach ($arr as $v) echo $v;`,
+  `if (x != null && x > 0) {\n  return x * 2;\n} else return -1;`
+];
+
+let typerState = { running: false, start: null, timer: null, snippet: '', idx: 0, errors: 0 };
+
+function typerRender() {
+  const s = typerState.snippet;
+  const idx = typerState.idx;
+  const input = document.getElementById('typer-input').value;
+  let html = '';
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i] === '\n' ? '↵\n' : s[i];
+    if (i < idx) {
+      const typed = input[i] || '';
+      const correct = typed === s[i];
+      html += `<span class="${correct ? 'char-correct' : 'char-wrong'}">${ch === '\n' ? '↵\n' : escHtml(ch)}</span>`;
+    } else if (i === idx) {
+      html += `<span class="char-pending char-cursor">${escHtml(ch === '↵\n' ? '↵\n' : ch)}</span>`;
+    } else {
+      html += `<span class="char-pending">${escHtml(ch === '↵\n' ? '↵\n' : ch)}</span>`;
+    }
+  }
+  document.getElementById('typer-snippet').innerHTML = html;
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function typerStart() {
+  const snippet = SNIPPETS[Math.floor(Math.random() * SNIPPETS.length)];
+  typerState = { running: true, start: null, timer: null, snippet, idx: 0, errors: 0 };
+  document.getElementById('typer-input').value = '';
+  document.getElementById('typer-input').disabled = false;
+  document.getElementById('typer-input').focus();
+  document.getElementById('typer-wpm').textContent = '0';
+  document.getElementById('typer-acc').textContent = '—';
+  document.getElementById('typer-time').textContent = '0s';
+  document.getElementById('typer-result').textContent = '';
+  document.getElementById('typer-btn').textContent = 'Restart';
+  typerRender();
+  if (typerState.timer) clearInterval(typerState.timer);
+  typerState.timer = setInterval(() => {
+    if (typerState.start) {
+      const elapsed = (Date.now() - typerState.start) / 1000;
+      document.getElementById('typer-time').textContent = elapsed.toFixed(1) + 's';
+      const words = typerState.idx / 5;
+      const wpm = Math.round(words / (elapsed / 60));
+      document.getElementById('typer-wpm').textContent = wpm;
+    }
+  }, 200);
+}
+
+document.getElementById('typer-input').addEventListener('input', function() {
+  if (!typerState.running) return;
+  if (!typerState.start) typerState.start = Date.now();
+  const val = this.value;
+  const s = typerState.snippet;
+  typerState.idx = val.length;
+  // count errors
+  let errs = 0;
+  for (let i = 0; i < val.length; i++) { if (val[i] !== s[i]) errs++; }
+  typerState.errors = errs;
+  const acc = val.length > 0 ? Math.round(((val.length - errs) / val.length) * 100) : 100;
+  document.getElementById('typer-acc').textContent = acc + '%';
+  typerRender();
+  if (val === s) {
+    clearInterval(typerState.timer);
+    typerState.running = false;
+    const elapsed = ((Date.now() - typerState.start) / 1000);
+    const wpm = Math.round((s.length / 5) / (elapsed / 60));
+    document.getElementById('typer-result').textContent = `✓ Done! ${wpm} WPM · ${acc}% accuracy · ${elapsed.toFixed(1)}s`;
+    this.disabled = true;
+  }
+});
+
+/* ══════════════════════════════
+   GAME 2: MEMORY MATCH
+══════════════════════════════ */
+const MEM_ITEMS = ['⚡','🐍','☕','🦀','🔷','🐘','🟠','🌐'];
+let memState = { cards: [], flipped: [], matched: 0, moves: 0, start: null, timer: null, locked: false };
+
+function memoryStart() {
+  clearInterval(memState.timer);
+  const pairs = [...MEM_ITEMS, ...MEM_ITEMS].sort(() => Math.random() - 0.5);
+  memState = { cards: pairs.map((v,i) => ({id:i, val:v, flipped:false, matched:false})), flipped: [], matched: 0, moves: 0, start: null, timer: null, locked: false };
+  document.getElementById('mem-moves').textContent = '0';
+  document.getElementById('mem-pairs').textContent = '0/8';
+  document.getElementById('mem-time').textContent = '0s';
+  document.getElementById('memory-result').textContent = '';
+  document.getElementById('memory-btn').textContent = 'Restart';
+  memRender();
+  memState.timer = setInterval(() => {
+    if (memState.start) {
+      const t = Math.round((Date.now() - memState.start) / 1000);
+      document.getElementById('mem-time').textContent = t + 's';
+    }
+  }, 500);
+}
+
+function memRender() {
+  const grid = document.getElementById('memory-grid');
+  grid.innerHTML = '';
+  memState.cards.forEach((card, i) => {
+    const el = document.createElement('div');
+    el.className = 'mem-card' + (card.flipped ? ' flipped' : '') + (card.matched ? ' matched' : '');
+    el.innerHTML = `<span class="front">${card.val}</span><span class="back">?</span>`;
+    el.addEventListener('click', () => memFlip(i));
+    grid.appendChild(el);
+  });
+}
+
+function memFlip(i) {
+  const s = memState;
+  if (s.locked) return;
+  const card = s.cards[i];
+  if (card.flipped || card.matched || s.flipped.length === 2) return;
+  if (!s.start) s.start = Date.now();
+  card.flipped = true;
+  s.flipped.push(i);
+  memRender();
+  if (s.flipped.length === 2) {
+    s.moves++;
+    document.getElementById('mem-moves').textContent = s.moves;
+    const [a, b] = s.flipped;
+    if (s.cards[a].val === s.cards[b].val) {
+      s.cards[a].matched = s.cards[b].matched = true;
+      s.matched++;
+      document.getElementById('mem-pairs').textContent = s.matched + '/8';
+      s.flipped = [];
+      memRender();
+      if (s.matched === 8) {
+        clearInterval(s.timer);
+        const t = Math.round((Date.now() - s.start) / 1000);
+        document.getElementById('memory-result').textContent = `✓ All matched! ${s.moves} moves · ${t}s`;
+      }
+    } else {
+      s.locked = true;
+      setTimeout(() => {
+        s.cards[a].flipped = s.cards[b].flipped = false;
+        s.flipped = []; s.locked = false;
+        memRender();
+      }, 900);
+    }
+  }
+}
+
+/* ══════════════════════════════
+   GAME 3: BUG CATCHER
+══════════════════════════════ */
+const BUG_EMOJIS = ['🐛','🐞','🦟','🐜','🦗'];
+let bugState = { running: false, score: 0, missed: 0, timer: null, spawnTimer: null, bugs: [], start: null };
+
+function bugStart() {
+  // clear previous
+  clearInterval(bugState.timer);
+  clearInterval(bugState.spawnTimer);
+  const arena = document.getElementById('bug-arena');
+  arena.querySelectorAll('.bug').forEach(b => b.remove());
+  document.getElementById('bug-arena-msg').style.display = 'none';
+  bugState = { running: true, score: 0, missed: 0, timer: null, spawnTimer: null, bugs: [], start: Date.now() };
+  document.getElementById('bug-score').textContent = '0';
+  document.getElementById('bug-missed').textContent = '0';
+  document.getElementById('bug-result').textContent = '';
+  document.getElementById('bug-btn').textContent = 'Restart';
+
+  const fill = document.getElementById('bug-timer-fill');
+  fill.style.width = '100%';
+
+  // countdown
+  const DURATION = 30000;
+  const startTime = Date.now();
+  bugState.timer = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    const pct = Math.max(0, 100 - (elapsed / DURATION) * 100);
+    fill.style.width = pct + '%';
+    if (elapsed >= DURATION) bugEnd();
+  }, 100);
+
+  // spawn bugs
+  bugState.spawnTimer = setInterval(() => {
+    if (!bugState.running) return;
+    spawnBug();
+  }, 800);
+  spawnBug(); spawnBug();
+}
+
+function spawnBug() {
+  const arena = document.getElementById('bug-arena');
+  const w = arena.offsetWidth - 40, h = arena.offsetHeight - 40;
+  const bug = document.createElement('div');
+  bug.className = 'bug';
+  bug.textContent = BUG_EMOJIS[Math.floor(Math.random() * BUG_EMOJIS.length)];
+  bug.style.left = Math.random() * w + 'px';
+  bug.style.top = Math.random() * h + 'px';
+  bug.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!bugState.running) return;
+    // splat effect
+    const splat = document.createElement('div');
+    splat.className = 'bug-splat';
+    splat.textContent = '💥';
+    splat.style.left = bug.style.left;
+    splat.style.top = bug.style.top;
+    arena.appendChild(splat);
+    setTimeout(() => splat.remove(), 500);
+    bug.remove();
+    bugState.score++;
+    document.getElementById('bug-score').textContent = bugState.score;
+  });
+  // auto-escape after random time
+  const escapeTime = 2500 + Math.random() * 2500;
+  const escTimer = setTimeout(() => {
+    if (bug.parentNode && bugState.running) {
+      bug.remove();
+      bugState.missed++;
+      document.getElementById('bug-missed').textContent = bugState.missed;
+    }
+  }, escapeTime);
+  bug._escTimer = escTimer;
+  arena.appendChild(bug);
+}
+
+function bugEnd() {
+  bugState.running = false;
+  clearInterval(bugState.timer);
+  clearInterval(bugState.spawnTimer);
+  const arena = document.getElementById('bug-arena');
+  arena.querySelectorAll('.bug').forEach(b => { clearTimeout(b._escTimer); b.remove(); });
+  const msg = document.getElementById('bug-arena-msg');
+  msg.style.display = 'flex';
+  msg.innerHTML = `🏆 Time's up! <strong style="color:var(--orange);margin:0 0.3rem">${bugState.score}</strong> bugs fixed, <strong style="color:#f87171;margin:0 0.3rem">${bugState.missed}</strong> escaped`;
+  const grade = bugState.score >= 20 ? '🔥 Legendary debugger!' : bugState.score >= 12 ? '⚡ Great work!' : bugState.score >= 6 ? '👍 Not bad!' : '🐛 The bugs won this round...';
+  document.getElementById('bug-result').textContent = grade;
+}
+</script>
 </body>
 </html>
