@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marios Koundouris — Senior Project Manager & Software Engineer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #0a0a0a;
+      --dark:    #111111;
+      --card:    #181818;
+      --border:  #2a2a2a;
+      --grey:    #888888;
+      --grey-lt: #cccccc;
+      --white:   #f5f5f5;
+      --orange:  #f97316;
+      --orange-d:#c45a0c;
+      --orange-g:rgba(249,115,22,0.08);
+      --mono:    'Courier New', Courier, monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--black);
+      color: var(--white);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── GRID BACKGROUND ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.35;
+    }
+
+    * { position: relative; z-index: 1; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      background: rgba(10,10,10,0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      height: 58px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3rem;
+    }
+    .nav-logo {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--orange);
+      letter-spacing: 0.04em;
+    }
+    .nav-logo span { color: var(--grey); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--grey); text-decoration: none; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--orange); }
+
+    /* ── WRAPPER ── */
+    .wrap { max-width: 960px; margin: 0 auto; padding: 0 2rem; }
+
+    /* ── SECTION TITLES ── */
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--orange);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    h2 {
+      font-size: 2rem; font-weight: 800; color: var(--white);
+      margin-bottom: 2.5rem; line-height: 1.2;
+    }
+    h2 em { color: var(--orange); font-style: normal; }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding: 80px 2rem 4rem;
+    }
+    .hero-inner { max-width: 960px; margin: 0 auto; width: 100%; }
+
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: var(--mono); font-size: 0.78rem;
+      color: var(--orange); border: 1px solid var(--orange);
+      padding: 0.3rem 0.8rem; border-radius: 3px; margin-bottom: 2rem;
+      letter-spacing: 0.06em;
+    }
+    .hero-tag::before { content: '▶'; font-size: 0.6rem; }
+
+    .hero-name {
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1.0;
+      color: var(--white);
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+    .hero-name .line2 { color: var(--orange); }
+
+    .hero-sub {
+      font-size: 1.05rem; color: var(--grey-lt); max-width: 560px;
+      margin-bottom: 2.5rem; line-height: 1.8;
+    }
+
+    .hero-stats {
+      display: flex; gap: 2.5rem; flex-wrap: wrap;
+      margin-bottom: 2.5rem; padding: 1.5rem 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stat-num { font-size: 2rem; font-weight: 800; color: var(--orange); line-height: 1; }
+    .stat-label { font-size: 0.75rem; color: var(--grey); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.25rem; }
+
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn {
+      font-size: 0.85rem; font-weight: 700; padding: 0.75rem 1.75rem;
+      border-radius: 4px; text-decoration: none; transition: all 0.2s;
+      letter-spacing: 0.04em; text-transform: uppercase; display: inline-block;
+    }
+    .btn-orange { background: var(--orange); color: var(--black); }
+    .btn-orange:hover { background: #fb923c; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(249,115,22,0.35); }
+    .btn-ghost { border: 1px solid var(--border); color: var(--grey); background: transparent; }
+    .btn-ghost:hover { border-color: var(--orange); color: var(--orange); transform: translateY(-2px); }
+
+    /* ── TERMINAL BLOCK ── */
+    .terminal {
+      background: #0f0f0f; border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+      margin-bottom: 3rem;
+    }
+    .terminal-bar {
+      background: #1c1c1c; padding: 0.6rem 1rem;
+      display: flex; align-items: center; gap: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+    .terminal-title { font-family: var(--mono); font-size: 0.72rem; color: var(--grey); margin-left: 0.5rem; }
+    .terminal-body { padding: 1.25rem 1.5rem; font-family: var(--mono); font-size: 0.82rem; line-height: 2; }
+    .t-prompt { color: var(--orange); }
+    .t-cmd { color: var(--white); }
+    .t-out { color: #7dd3fc; }
+    .t-comment { color: #4a5568; }
+    .t-str { color: #86efac; }
+    .t-cursor {
+      display: inline-block; width: 8px; height: 14px;
+      background: var(--orange); vertical-align: text-bottom;
+      animation: blink 1.1s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── SECTIONS ── */
+    section { padding: 6rem 0; }
+
+    /* ── SKILLS ── */
+    .skills-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .skill-block {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .skill-block:hover { border-color: var(--orange); transform: translateY(-3px); }
+    .skill-block-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-bottom: 1rem; padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .skill-icon { font-size: 1.3rem; }
+    .skill-block-title { font-weight: 700; font-size: 0.95rem; color: var(--white); }
+    .skill-block-sub { font-size: 0.72rem; color: var(--grey); font-family: var(--mono); }
+    .tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .tag {
+      font-family: var(--mono); font-size: 0.75rem;
+      padding: 0.2rem 0.6rem; border-radius: 3px;
+      background: #1f1f1f; border: 1px solid #333;
+      color: var(--grey-lt);
+    }
+    .tag-orange { border-color: var(--orange); color: var(--orange); background: var(--orange-g); }
+
+    /* ── EXPERIENCE ── */
+    .exp-item {
+      display: grid; grid-template-columns: 200px 1fr; gap: 2rem;
+      padding: 2rem 0; border-bottom: 1px solid var(--border);
+    }
+    .exp-item:last-child { border-bottom: none; }
+    .exp-meta { padding-top: 0.2rem; }
+    .exp-date { font-family: var(--mono); font-size: 0.75rem; color: var(--orange); margin-bottom: 0.4rem; }
+    .exp-org { font-size: 0.82rem; color: var(--grey); line-height: 1.5; }
+    .exp-role { font-size: 1.15rem; font-weight: 800; color: var(--white); margin-bottom: 0.5rem; }
+    .exp-badge {
+      display: inline-block; font-family: var(--mono); font-size: 0.65rem;
+      padding: 0.15rem 0.5rem; border-radius: 2px;
+      background: var(--orange-g); border: 1px solid var(--orange);
+      color: var(--orange); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .exp-desc { font-size: 0.9rem; color: var(--grey-lt); line-height: 1.8; }
+    .exp-projects { margin-top: 0.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    /* ── RESEARCH BANNER ── */
+    .research-banner {
+      background: var(--card); border: 1px solid var(--border);
+      border-left: 3px solid var(--orange);
+      border-radius: 0 8px 8px 0; padding: 1.5rem 2rem;
+      margin-bottom: 3rem;
+    }
+    .research-banner p { font-size: 0.9rem; color: var(--grey-lt); line-height: 1.8; }
+    .research-banner strong { color: var(--orange); }
+
+    /* ── EDUCATION ── */
+    .edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .edu-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 1.75rem;
+      transition: border-color 0.2s;
+    }
+    .edu-card:hover { border-color: var(--orange); }
+    .edu-degree-type {
+      font-family: var(--mono); font-size: 0.7rem; color: var(--orange);
+      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;
+    }
+    .edu-degree { font-size: 1.05rem; font-weight: 800; color: var(--white); margin-bottom: 0.25rem; }
+    .edu-uni { font-size: 0.85rem; color: var(--grey-lt); margin-bottom: 0.5rem; }
+    .edu-date { font-family: var(--mono); font-size: 0.75rem; color: var(--grey); }
+
+    /* ── CONTACT ── */
+    .contact-grid { display: flex; flex-wrap: wrap; gap: 1rem; }
+    .contact-link {
+      display: flex; align-items: center; gap: 1rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 1.1rem 1.5rem;
+      text-decoration: none; transition: all 0.2s; flex: 1; min-width: 220px;
+    }
+    .contact-link:hover { border-color: var(--orange); transform: translateY(-2px); }
+    .contact-link-icon {
+      width: 38px; height: 38px; border-radius: 6px;
+      background: var(--orange-g); border: 1px solid var(--orange);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .contact-link-label { font-size: 0.7rem; color: var(--grey); text-transform: uppercase; letter-spacing: 0.08em; }
+    .contact-link-val { font-size: 0.9rem; color: var(--white); font-weight: 600; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px; background: var(--border); margin: 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 2rem 3rem;
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: var(--mono); font-size: 0.72rem; color: var(--grey);
+      flex-wrap: wrap; gap: 1rem;
+    }
+    footer span { color: var(--orange); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 700px) {
+      nav { padding: 0 1.25rem; }
+      .nav-links { gap: 1rem; }
+      .nav-links a { font-size: 0.7rem; }
+      .wrap { padding: 0 1.25rem; }
+      .skills-layout { grid-template-columns: 1fr; }
+      .exp-item { grid-template-columns: 1fr; gap: 0.5rem; }
+      .edu-grid { grid-template-columns: 1fr; }
+      footer { padding: 1.5rem; flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo"><span>~/</span>marios-koundouris</div>
+    <ul class="nav-links">
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#research">Research</a></li>
+      <li><a href="#education">Education</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-inner">
+      <div class="hero-tag">Available for collaboration</div>
+      <h1 class="hero-name">
+        Marios<br>
+        <span class="line2">Koundouris</span>
+      </h1>
+      <p class="hero-sub">
+        Senior Project Manager &amp; Software Engineer. Full-stack developer, EU research coordinator,
+        and WordPress infrastructure specialist based in Nicosia, Cyprus.
+      </p>
+
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">5+</div>
+          <div class="stat-label">EU Projects</div>
+        </div>
+        <div>
+          <div class="stat-num">2+</div>
+          <div class="stat-label">Years at CIP</div>
+        </div>
+        <div>
+          <div class="stat-num">MSc</div>
+          <div class="stat-label">Data Science</div>
+        </div>
+        <div>
+          <div class="stat-num">6+</div>
+          <div class="stat-label">Languages</div>
+        </div>
+      </div>
+
+      <div class="hero-cta">
+        <a href="#contact" class="btn btn-orange">Get in touch</a>
+        <a href="#experience" class="btn btn-ghost">View experience</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- TERMINAL / SKILLS INTRO -->
+  <section id="skills">
+    <div class="wrap">
+      <p class="section-label">// technical profile</p>
+      <h2>Skills &amp; <em>Stack</em></h2>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+          <span class="terminal-title">marios@cip:~$ profile.sh</span>
+        </div>
+        <div class="terminal-body">
+          <div><span class="t-prompt">$ </span><span class="t-cmd">cat skills.json</span></div>
+          <div><span class="t-comment">{</span></div>
+          <div>&nbsp;&nbsp;<span class="t-out">"languages"</span><span class="t-comment">: [</span><span class="t-str">"PHP"</span><span class="t-comment">, </span><span class="t-str">"Java"</span><span class="t-comment">, </span><span class="t-str">"C"</span><span class="t-comment">, </span><span class="t-str">"C++"</span><span class="t-comment">, </span><span class="t-str">"C#"</span><span class="t-comment">, </span><span class="t-str">"SQL"</span><span class="t-comment">],</span></div>
+          <div>&nbsp;&nbsp;<span class="t-out">"platforms"</span><span class="t-comment">: [</span><span class="t-str">"WordPress"</span><span class="t-comment">, </span><span class="t-str">"Android Studio"</span><span class="t-comment">, </span><span class="t-str">"Unity3D"</span><span class="t-comment">, </span><span class="t-str">"VR/AR"</span><span class="t-comment">],</span></div>
+          <div>&nbsp;&nbsp;<span class="t-out">"research"</span><span class="t-comment">: [</span><span class="t-str">"Erasmus+"</span><span class="t-comment">, </span><span class="t-str">"H2020"</span><span class="t-comment">, </span><span class="t-str">"Interreg"</span><span class="t-comment">, </span><span class="t-str">"ERA Chair"</span><span class="t-comment">],</span></div>
+          <div>&nbsp;&nbsp;<span class="t-out">"role"</span><span class="t-comment">: </span><span class="t-str">"Senior Project Manager @ CIP"</span></div>
+          <div><span class="t-comment">}</span></div>
+          <div><span class="t-prompt">$ </span><span class="t-cursor"></span></div>
+        </div>
+      </div>
+
+      <div class="skills-layout">
+        <div class="skill-block">
+          <div class="skill-block-header">
+            <span class="skill-icon">⌨</span>
+            <div>
+              <div class="skill-block-title">Programming Languages</div>
+              <div class="skill-block-sub">core development stack</div>
+            </div>
+          </div>
+          <div class="tags">
+            <span class="tag tag-orange">PHP</span>
+            <span class="tag tag-orange">Java</span>
+            <span class="tag tag-orange">C</span>
+            <span class="tag tag-orange">C++</span>
+            <span class="tag tag-orange">C#</span>
+            <span class="tag tag-orange">SQL</span>
+          </div>
+        </div>
+
+        <div class="skill-block">
+          <div class="skill-block-header">
+            <span class="skill-icon">🌐</span>
+            <div>
+              <div class="skill-block-title">Web &amp; WordPress</div>
+              <div class="skill-block-sub">cms &amp; infrastructure</div>
+            </div>
+          </div>
+          <div class="tags">
+            <span class="tag">Custom Themes</span>
+            <span class="tag">Plugin Dev</span>
+            <span class="tag">SEO Optimisation</span>
+            <span class="tag">SiteGround</span>
+            <span class="tag">HostGator</span>
+            <span class="tag">Server Admin</span>
+          </div>
+        </div>
+
+        <div class="skill-block">
+          <div class="skill-block-header">
+            <span class="skill-icon">📱</span>
+            <div>
+              <div class="skill-block-title">Mobile &amp; Interactive</div>
+              <div class="skill-block-sub">android · immersive tech</div>
+            </div>
+          </div>
+          <div class="tags">
+            <span class="tag">Android Studio</span>
+            <span class="tag">Unity 2D/3D</span>
+            <span class="tag">VR / AR</span>
+            <span class="tag">Gamification</span>
+            <span class="tag">Linux</span>
+            <span class="tag">Windows</span>
+          </div>
+        </div>
+
+        <div class="skill-block">
+          <div class="skill-block-header">
+            <span class="skill-icon">🔬</span>
+            <div>
+              <div class="skill-block-title">Research &amp; Management</div>
+              <div class="skill-block-sub">eu projects · coordination</div>
+            </div>
+          </div>
+          <div class="tags">
+            <span class="tag">EU Project Mgmt</span>
+            <span class="tag">WP Coordination</span>
+            <span class="tag">Data Science</span>
+            <span class="tag">Academic Writing</span>
+            <span class="tag">Conference Mgmt</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="wrap">
+      <p class="section-label">// work history</p>
+      <h2>Professional <em>Experience</em></h2>
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="exp-date">Sep 2025 — Present</div>
+          <div class="exp-org">C.I.P. Citizens in Power<br>Nicosia, Cyprus</div>
+        </div>
+        <div>
+          <div class="exp-badge">Current role</div>
+          <div class="exp-role">Senior Project Manager</div>
+          <p class="exp-desc">
+            Leading technical and project management operations for EU-funded initiatives.
+            Overseeing cross-functional team coordination, deliverable management, digital
+            infrastructure strategy, and stakeholder reporting at organisational level.
+          </p>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="exp-date">Oct 2023 — Sep 2025</div>
+          <div class="exp-org">C.I.P. Citizens in Power<br>Nicosia, Cyprus</div>
+        </div>
+        <div>
+          <div class="exp-role">IT &amp; Project Manager</div>
+          <p class="exp-desc">
+            Managed multiple WordPress projects end-to-end: custom theme and plugin development,
+            performance optimisation, SEO, and secure scalable architecture. Administered hosting
+            environments on SiteGround and HostGator — server configuration, scheduled backups,
+            security hardening, and support for high-traffic production sites.
+          </p>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="exp-date">Aug 2021 — Oct 2023</div>
+          <div class="exp-org">Cyprus University of Technology<br>UNESCO &amp; ERA Chair<br>Limassol, Cyprus</div>
+        </div>
+        <div>
+          <div class="exp-role">Associate Researcher</div>
+          <p class="exp-desc">
+            Dual role as active researcher and software developer across five EU-funded projects,
+            with Work Package coordination responsibilities. Organised international conferences
+            and symposia, published research papers, and presented at local and international venues.
+          </p>
+          <div class="exp-projects">
+            <span class="tag tag-orange">Interreg DigiArc</span>
+            <span class="tag tag-orange">ERA Chair Mnemosyne</span>
+            <span class="tag tag-orange">H2020 TexTour</span>
+            <span class="tag tag-orange">Erasmus+ GLAMers</span>
+            <span class="tag tag-orange">Erasmus+ CREAMS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- RESEARCH -->
+  <section id="research">
+    <div class="wrap">
+      <p class="section-label">// eu research</p>
+      <h2>Research <em>Expertise</em></h2>
+
+      <div class="research-banner">
+        <p>
+          Contributed to <strong>5 EU-funded research projects</strong> spanning Interreg, H2020, ERA Chair,
+          and Erasmus+ programmes — operating simultaneously as researcher, software developer, and
+          Work Package coordinator. Published academic findings and presented at <strong>local and
+          international conferences</strong> on digital cultural heritage, gamification, and educational technology.
+        </p>
+      </div>
+
+      <div class="skills-layout">
+        <div class="skill-block">
+          <div class="skill-block-header">
+            <span class="skill-icon">🏛</span>
+            <div>
+              <div class="skill-block-title">Digital Cultural Heritage</div>
+              <div class="skill-block-sub">interreg · era chair · h2020</div>
+            </div>
+          </div>
+          <div class="tags">
+            <span class="tag">DigiArc</span>
+            <span class="tag">Mnemosyne</span>
+            <span class="tag">TexTour</span>
+            <span class="tag">WP Coordination</span>
+          </div>
+        </div>
+
+        <div class="skill-block">
+          <div class="skill-block-header">
+            <span class="skill-icon">🎓</span>
+            <div>
+              <div class="skill-block-title">Educational Technology</div>
+              <div class="skill-block-sub">erasmus+ projects</div>
+            </div>
+          </div>
+          <div class="tags">
+            <span class="tag">GLAMers</span>
+            <span class="tag">CREAMS</span>
+            <span class="tag">Gamification</span>
+            <span class="tag">E-learning</span>
+          </div>
+        </div>
+
+        <div class="skill-block">
+          <div class="skill-block-header">
+            <span class="skill-icon">📄</span>
+            <div>
+              <div class="skill-block-title">Dissemination</div>
+              <div class="skill-block-sub">academic publishing</div>
+            </div>
+          </div>
+          <div class="tags">
+            <span class="tag">Research Papers</span>
+            <span class="tag">Conference Talks</span>
+            <span class="tag">International Symposia</span>
+          </div>
+        </div>
+
+        <div class="skill-block">
+          <div class="skill-block-header">
+            <span class="skill-icon">🤝</span>
+            <div>
+              <div class="skill-block-title">Project Governance</div>
+              <div class="skill-block-sub">coordination &amp; reporting</div>
+            </div>
+          </div>
+          <div class="tags">
+            <span class="tag">Work Packages</span>
+            <span class="tag">Milestone Tracking</span>
+            <span class="tag">Consortium Mgmt</span>
+            <span class="tag">EU Reporting</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- EDUCATION -->
+  <section id="education">
+    <div class="wrap">
+      <p class="section-label">// academic background</p>
+      <h2>Education</h2>
+      <div class="edu-grid">
+        <div class="edu-card">
+          <div class="edu-degree-type">Master's Degree</div>
+          <div class="edu-degree">Data Science</div>
+          <div class="edu-uni">Cyprus University of Technology</div>
+          <div class="edu-date">Sep 2022 — Dec 2023</div>
+        </div>
+        <div class="edu-card">
+          <div class="edu-degree-type">Bachelor's Degree</div>
+          <div class="edu-degree">Computer Science &amp; Engineering</div>
+          <div class="edu-uni">Cyprus University of Technology</div>
+          <div class="edu-date">Sep 2017 — Dec 2021</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="wrap">
+      <p class="section-label">// get in touch</p>
+      <h2>Contact</h2>
+      <div class="contact-grid">
+        <a href="mailto:marioskoundouris@gmail.com" class="contact-link">
+          <div class="contact-link-icon">✉</div>
+          <div>
+            <div class="contact-link-label">Email</div>
+            <div class="contact-link-val">marioskoundouris@gmail.com</div>
+          </div>
+        </a>
+        <a href="https://www.linkedin.com/in/marioskoundouris-103467265" target="_blank" rel="noopener" class="contact-link">
+          <div class="contact-link-icon">in</div>
+          <div>
+            <div class="contact-link-label">LinkedIn</div>
+            <div class="contact-link-val">marioskoundouris</div>
+          </div>
+        </a>
+        <a href="#" class="contact-link">
+          <div class="contact-link-icon">📍</div>
+          <div>
+            <div class="contact-link-label">Location</div>
+            <div class="contact-link-val">Nicosia, Cyprus</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <footer>
+    <span>© 2026 Marios Koundouris</span>
+    <span style="color:var(--grey)">Built with <span>♥</span> · Nicosia, Cyprus</span>
+  </footer>
+
+</body>
+</html>
